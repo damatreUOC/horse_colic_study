@@ -1,0 +1,119 @@
+---
+title: "Tipología y ciclo de vida de los datos <br> Práctica 2: A3: Limpieza y validación de los datos"
+author: "Iago Veiras Lens"
+date: "Junio de 2019"
+output:
+  html_document:
+    highlight: default
+    number_sections: yes
+    theme: cosmo
+    toc: yes
+  pdf_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Sys.setenv(JAVA_HOME='C:/Program Files/Java/jdk1.8.0_05/')
+# setwd('C:/Ciencia de datos - UOC/Tipología y ciclo de vida de los datos/Practica2/')
+```
+
+******
+# Apartado 1 
+******
+
+
+
+******
+# Apartado 2
+******
+
+
+```{r}
+data <- read.csv2(file = "https://archive.ics.uci.edu/ml/machine-learning-databases/horse-colic/horse-colic.data",
+                 header = F, sep = "")
+data <- rbind(data, 
+              read.csv(file = "https://archive.ics.uci.edu/ml/machine-learning-databases/horse-colic/horse-colic.test",
+                       header = F, sep = ""))
+colnames(data) <- c("surgery", "age", "Hospital_Number", "rectal_temperature", "pulse", "respiratory_rate",
+                    "temperature_of_extremities", "peripheral_pulse", "mucous_membranes", "capillary_refill_time",
+                    "pain", "peristalsis", "abdominal_distension", "nasogastric_tube", "nasogastric_reflux",
+                    "nasogastric_reflux_PH", "rectal_examination", "abdomen", "packed_cell_volume","total_protein",
+                    "abdominocentesis_appearance", "abdomcentesis_total_protein", "outcome", "surgical_lesion",
+                    "type_lesion_1", "type_lesion_2", "type_lesion_3", "cp_data")
+```
+
+```{r}
+data[data == '?'] <- NaN
+```
+
+```{r}
+data <- data[-c(3, 6, 16, 28)]
+```
+
+```{r}
+data$surgery <- factor(data$surgery, labels = c("yes", "no"), levels = c(1, 2))
+data$age <- factor(data$age, labels = c("adult", "young"), levels = c(1, 9))
+data$temperature_of_extremities <- factor(data$temperature_of_extremities, 
+                                          labels = c("normal", "warm", "cool", "cold"), levels = c(1, 2, 3, 4))
+data$peripheral_pulse <- factor(data$peripheral_pulse, labels = c("normal", "increased", "reduced", 
+                                                                  "absent"), levels = c(1, 2, 3, 4))
+data$mucous_membranes <- factor(data$mucous_membranes, 
+                                labels = c("normal pink", "bright pink", "pale pink", "pale cyanotic", 
+                                           "bright red", "dark cyanotic"), levels = c(1, 2, 3, 4, 5, 6))
+data$capillary_refill_time <- factor(data$capillary_refill_time, labels = c("< 3s", "> 3s"), levels = c(1, 2))
+data$pain <- factor(data$pain, labels = c("alert", "depressed", "intermittent mild pain", "intermittent severe pain",
+                                          "continuous severe pain"), levels = c(1, 2, 3, 4, 5))
+data$peristalsis <- factor(data$peristalsis, labels = c("hypermotile", "normal", "hypomotile", "absent"), 
+                           levels = c(1, 2, 3, 4))
+data$abdominal_distension <- factor(data$abdominal_distension, labels = c("none", "slight", "moderate", "severe"),
+                                    levels = c(1, 2, 3, 4))
+data$nasogastric_tube <- factor(data$nasogastric_tube, labels = c("none", "slight", "significant"),
+                                    levels = c(1, 2, 3))
+data$nasogastric_reflux <- factor(data$nasogastric_reflux, labels = c("none", "> 1l", "< 1l"),
+                                    levels = c(1, 2, 3))
+data$rectal_examination <- factor(data$rectal_examination, labels = c("normal", "increased", "decreased", "absent"),
+                                    levels = c(1, 2, 3, 4))
+data$abdomen <- factor(data$abdomen, labels = c("normal", "other", "firm feces li", "distended si", "distended li"),
+                                    levels = c(1, 2, 3, 4, 5))
+data$abdominocentesis_appearance <- factor(data$abdominocentesis_appearance, 
+                                           labels = c("clear", "cloudy", "serosanguineous"), levels = c(1, 2, 3))
+data$outcome <- factor(data$outcome, labels = c("lived", "died", "euthanized"), levels = c(1, 2, 3))
+data$surgical_lesion <- factor(data$surgical_lesion, labels = c("yes", "no"), levels = c(1, 2))
+```
+
+```{r message = FALSE, warning = FALSE}
+data$rectal_temperature <- as.numeric(levels(data$rectal_temperature))[data$rectal_temperature]
+data$pulse <- as.numeric(levels(data$pulse))[data$pulse]
+data$packed_cell_volume <- as.numeric(levels(data$packed_cell_volume))[data$packed_cell_volume]
+data$total_protein <- as.numeric(levels(data$total_protein))[data$total_protein]
+data$abdomcentesis_total_protein <-
+  as.numeric(levels(data$abdomcentesis_total_protein))[data$abdomcentesis_total_protein]
+```
+
+```{r}
+data$type_lesion_1[data$type_lesion_1 > 0] <- 1
+data$type_lesion_2[data$type_lesion_2 > 0] <- 1
+data$type_lesion_3[data$type_lesion_3 > 0] <- 1
+data$num_lesion <- data$type_lesion_1 + data$type_lesion_2 + data$type_lesion_3
+data <- data[-c(22, 23, 24)]
+```
+
+```{r}
+summary(data)
+```
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+

@@ -1,95 +1,165 @@
 ---
-title: "Tipología y ciclo de vida de los datos <br> Práctica 2: A3: Limpieza y validación de los datos"
-author: "Iago Veiras Lens"
+title: \vspace{8cm}Tipología y ciclo de vida de los datos
+subtitle: "Práctica 2: Limpieza y validación de los datos"
+author: "Daniel Mato Regueira e Iago Veiras Lens "
 date: "Junio de 2019"
+header-includes:
+  - \usepackage[spanish]{babel}
+  - \pagenumbering{gobble}
 output:
+  pdf_document: 
+    number_sections: yes
+    toc: no
   html_document:
     highlight: default
     number_sections: yes
     theme: cosmo
-    toc: yes
-  pdf_document:
     toc: yes
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Sys.setenv(JAVA_HOME='C:/Program Files/Java/jdk1.8.0_05/')
-# setwd('C:/Ciencia de datos - UOC/Tipología y ciclo de vida de los datos/Practica2/')
+set.seed(20180509)
 ```
 
+```{r, include=FALSE}
+options(tinytex.verbose = TRUE)
+```
+
+\newpage
+
+\pagenumbering{arabic} 
+\tableofcontents
+
+\newpage
 ******
-# Apartado 1 
-******
+
+# Detalles de la actividad {-}
 
 
 
-******
-# Apartado 2
+\newpage
 ******
 
+# Descripción del dataset
+
+
+## Variables del dataset
+
+
+## Importancia y objetivo del análisis
+
+\newpage
+******
+
+# Integración y selección de los datos
+
+
+Cargamos los dos conjuntos de datos
 
 ```{r}
-data <- read.csv2(file = "https://archive.ics.uci.edu/ml/machine-learning-databases/horse-colic/horse-colic.data",
-                 header = F, sep = "")
-data <- rbind(data, 
-              read.csv(file = "https://archive.ics.uci.edu/ml/machine-learning-databases/horse-colic/horse-colic.test",
-                       header = F, sep = ""))
-colnames(data) <- c("surgery", "age", "Hospital_Number", "rectal_temperature", "pulse", "respiratory_rate",
-                    "temperature_of_extremities", "peripheral_pulse", "mucous_membranes", "capillary_refill_time",
-                    "pain", "peristalsis", "abdominal_distension", "nasogastric_tube", "nasogastric_reflux",
-                    "nasogastric_reflux_PH", "rectal_examination", "abdomen", "packed_cell_volume","total_protein",
-                    "abdominocentesis_appearance", "abdomcentesis_total_protein", "outcome", "surgical_lesion",
+data <- read.csv2(
+  file = "https://archive.ics.uci.edu/ml/machine-learning-databases/horse-colic/horse-colic.data",
+  header = F, sep = "")
+data <- rbind(
+  data, 
+  read.csv(
+    file = "https://archive.ics.uci.edu/ml/machine-learning-databases/horse-colic/horse-colic.test",
+    header = F, sep = ""))
+```
+
+Damos nombre a las columnas según el repositorio (enlace al documento con la descripción de variables)
+
+```{r}
+colnames(data) <- c("surgery", "age", "Hospital_Number", "rectal_temperature", "pulse", 
+                    "respiratory_rate", "temperature_of_extremities", "peripheral_pulse", 
+                    "mucous_membranes", "capillary_refill_time", "pain", "peristalsis", 
+                    "abdominal_distension", "nasogastric_tube", "nasogastric_reflux",
+                    "nasogastric_reflux_PH", "rectal_examination", "abdomen", 
+                    "packed_cell_volume","total_protein", "abdominocentesis_appearance", 
+                    "abdomcentesis_total_protein", "outcome", "surgical_lesion",
                     "type_lesion_1", "type_lesion_2", "type_lesion_3", "cp_data")
 ```
+
+Convertimos los ? a NaN
 
 ```{r}
 data[data == '?'] <- NaN
 ```
 
+Descartamos las variables inútiles
+
 ```{r}
 data <- data[-c(3, 6, 16, 28)]
 ```
+
+Refactorizamos las variables categóricas
 
 ```{r}
 data$surgery <- factor(data$surgery, labels = c("yes", "no"), levels = c(1, 2))
 data$age <- factor(data$age, labels = c("adult", "young"), levels = c(1, 9))
 data$temperature_of_extremities <- factor(data$temperature_of_extremities, 
-                                          labels = c("normal", "warm", "cool", "cold"), levels = c(1, 2, 3, 4))
-data$peripheral_pulse <- factor(data$peripheral_pulse, labels = c("normal", "increased", "reduced", 
-                                                                  "absent"), levels = c(1, 2, 3, 4))
+                                          labels = c("normal", "warm", "cool", "cold"), 
+                                          levels = c(1, 2, 3, 4))
+data$peripheral_pulse <- factor(data$peripheral_pulse, 
+                                labels = c("normal", "increased", "reduced", "absent"), 
+                                levels = c(1, 2, 3, 4))
 data$mucous_membranes <- factor(data$mucous_membranes, 
-                                labels = c("normal pink", "bright pink", "pale pink", "pale cyanotic", 
-                                           "bright red", "dark cyanotic"), levels = c(1, 2, 3, 4, 5, 6))
-data$capillary_refill_time <- factor(data$capillary_refill_time, labels = c("< 3s", "> 3s"), levels = c(1, 2))
-data$pain <- factor(data$pain, labels = c("alert", "depressed", "intermittent mild pain", "intermittent severe pain",
-                                          "continuous severe pain"), levels = c(1, 2, 3, 4, 5))
-data$peristalsis <- factor(data$peristalsis, labels = c("hypermotile", "normal", "hypomotile", "absent"), 
+                                labels = c("normal pink", "bright pink", "pale pink", 
+                                           "pale cyanotic", "bright red", 
+                                           "dark cyanotic"), 
+                                levels = c(1, 2, 3, 4, 5, 6))
+data$capillary_refill_time <- factor(data$capillary_refill_time, 
+                                     labels = c("< 3s", "> 3s"), levels = c(1, 2))
+data$pain <- factor(data$pain, 
+                    labels = c("alert", "depressed", "intermittent mild pain", 
+                               "intermittent severe pain", "continuous severe pain"), 
+                    levels = c(1, 2, 3, 4, 5))
+data$peristalsis <- factor(data$peristalsis, 
+                           labels = c("hypermotile", "normal", "hypomotile", "absent"), 
                            levels = c(1, 2, 3, 4))
-data$abdominal_distension <- factor(data$abdominal_distension, labels = c("none", "slight", "moderate", "severe"),
+data$abdominal_distension <- factor(data$abdominal_distension, 
+                                    labels = c("none", "slight", "moderate", "severe"),
                                     levels = c(1, 2, 3, 4))
-data$nasogastric_tube <- factor(data$nasogastric_tube, labels = c("none", "slight", "significant"),
-                                    levels = c(1, 2, 3))
-data$nasogastric_reflux <- factor(data$nasogastric_reflux, labels = c("none", "> 1l", "< 1l"),
-                                    levels = c(1, 2, 3))
-data$rectal_examination <- factor(data$rectal_examination, labels = c("normal", "increased", "decreased", "absent"),
-                                    levels = c(1, 2, 3, 4))
-data$abdomen <- factor(data$abdomen, labels = c("normal", "other", "firm feces li", "distended si", "distended li"),
-                                    levels = c(1, 2, 3, 4, 5))
+data$nasogastric_tube <- factor(data$nasogastric_tube, 
+                                labels = c("none", "slight", "significant"),
+                                levels = c(1, 2, 3))
+data$nasogastric_reflux <- factor(data$nasogastric_reflux, 
+                                  labels = c("none", "> 1l", "< 1l"),
+                                  levels = c(1, 2, 3))
+data$rectal_examination <- factor(data$rectal_examination, 
+                                  labels = c("normal", "increased", "decreased", 
+                                             "absent"),
+                                  levels = c(1, 2, 3, 4))
+data$abdomen <- factor(data$abdomen, 
+                       labels = c("normal", "other", "firm feces li", "distended si", 
+                                  "distended li"),
+                       levels = c(1, 2, 3, 4, 5))
 data$abdominocentesis_appearance <- factor(data$abdominocentesis_appearance, 
-                                           labels = c("clear", "cloudy", "serosanguineous"), levels = c(1, 2, 3))
-data$outcome <- factor(data$outcome, labels = c("lived", "died", "euthanized"), levels = c(1, 2, 3))
-data$surgical_lesion <- factor(data$surgical_lesion, labels = c("yes", "no"), levels = c(1, 2))
+                                           labels = c("clear", "cloudy", 
+                                                      "serosanguineous"), 
+                                           levels = c(1, 2, 3))
+data$outcome <- factor(data$outcome, 
+                       labels = c("lived", "died", "euthanized"), levels = c(1, 2, 3))
+data$surgical_lesion <- factor(data$surgical_lesion, 
+                               labels = c("yes", "no"), levels = c(1, 2))
 ```
 
+Convertimos a continuas las variables numéricas 
+
 ```{r message = FALSE, warning = FALSE}
-data$rectal_temperature <- as.numeric(levels(data$rectal_temperature))[data$rectal_temperature]
+data$rectal_temperature <- as.numeric(levels(data$rectal_temperature))[
+  data$rectal_temperature]
 data$pulse <- as.numeric(levels(data$pulse))[data$pulse]
-data$packed_cell_volume <- as.numeric(levels(data$packed_cell_volume))[data$packed_cell_volume]
+data$packed_cell_volume <- as.numeric(levels(data$packed_cell_volume))[
+  data$packed_cell_volume]
 data$total_protein <- as.numeric(levels(data$total_protein))[data$total_protein]
 data$abdomcentesis_total_protein <-
   as.numeric(levels(data$abdomcentesis_total_protein))[data$abdomcentesis_total_protein]
 ```
+
+Nos interesa el número de lesiones, no el tipo. Convertimos las 3 variables en una única
 
 ```{r}
 data$type_lesion_1[data$type_lesion_1 > 0] <- 1
@@ -99,21 +169,257 @@ data$num_lesion <- data$type_lesion_1 + data$type_lesion_2 + data$type_lesion_3
 data <- data[-c(22, 23, 24)]
 ```
 
+Resultado de los datos integrados (no limpios)
+
 ```{r}
 summary(data)
 ```
 
-```{r}
+\newpage
+******
 
+# Limpieza de los datos
+
+
+## Elementos vacíos
+
+Eliminamos la filas que tenga más de un 50% de variables faltantes
+
+```{r}
+filas_nan <- apply(data, 1, function(y) sum(is.na(y))) < dim(data)[2]/2
+data <- data[filas_nan,]
 ```
 
+Cargamos la librería "VIM" para estudiar los patrones de datos faltantes
 
-```{r}
-
+```{r message = FALSE, warning = FALSE}
+if (!require("VIM")) install.packages("VIM")
+library(VIM)
 ```
 
+Representamos los patrones de datos faltantes y el conteo de variables con mayor número de datos faltantes
+
+```{r message = FALSE, warning = FALSE}
+aggr_plot <- aggr(data, col=c('navyblue','red'), numbers=TRUE, sortVars=TRUE, 
+                  labels=names(data), cex.axis=.7, 
+                  gap=3, ylab=c("Histograma de valores faltantes", "Patrón"))
+```
+
+Cargamos la librería "MICE" para imputar datos faltantes
+
+```{r message = FALSE, warning = FALSE}
+if (!require("mice")) install.packages("mice")
+library(mice)
+```
+
+Eliminamos las variables con más de un 50% de valores faltantes
 
 ```{r}
-
+data <- data[-c(18, 19)]
 ```
+
+Generamos varias capas de imputación para los datos faltantes y los representamos
+
+```{r}
+#temp_data <- mice(data, printFlag = F)
+temp_data <- mice(data, printFlag = F, m= 1, maxiter=1)
+stripplot(temp_data, pch=20, cex = 1.2)
+```
+
+Imputamos los datos en el conjunto original
+
+```{r}
+data <- complete(temp_data)
+```
+
+## Valores extremos
+
+Estudiamos los outliers de "rectal_temperature". Los valores son extremos pero plausibles
+
+```{r}
+boxplot.stats(data$rectal_temperature)$out
+```
+
+Estudiamos los outliers de "pulse". Eliminamos los valores extremos, ya que no son valores alcanzables por caballos
+
+```{r}
+boxplot.stats(data$pulse)$out
+out_pulse <- boxplot.stats(data$pulse)$out
+data <- data[-which(data$pulse %in% out_pulse), ]
+```
+
+Estudiamos los outliers de "packed_cell_volume". Eliminamos los valores extremos, ya que no son valores plausibles
+
+```{r}
+boxplot.stats(data$packed_cell_volume)$out
+out_cells <- boxplot.stats(data$packed_cell_volume)$out
+data <- data[-which(data$packed_cell_volume %in% out_cells), ]
+```
+
+Estudiamos los outliers de "total_protein". No hay ninguno
+
+```{r}
+boxplot.stats(data$total_protein)$out
+```
+
+Estudiamos los outliers de "num_lesion". No los eliminamos, ya que son valores calculados anteriormente y estos eran plausibles
+
+```{r}
+boxplot.stats(data$num_lesion)$out
+```
+
+Generamos un fichero con los datos filtrados y tratados.
+
+```{r}
+write.csv(data, file = "clean_data_horse_colic.csv", row.names = F)
+```
+
+\newpage
+******
+
+# Análisis de los datos
+
+
+## Selección de grupos a analizar
+
+
+## Comprobación de normalidad y homocedasticidad
+
+Aplicamos el test de Shapiro-Wilk a las cuatro variables numéricas
+
+```{r}
+shapiro.test(data$rectal_temperature)
+shapiro.test(data$pulse)
+shapiro.test(data$packed_cell_volume)
+shapiro.test(data$total_protein)
+```
+
+Cargamos la librería "car" para estudiar la homocedasticidad de los dos grupos de datos generados
+
+```{r message = FALSE, warning = FALSE}
+if (!require("car")) install.packages("car")
+library(car)
+```
+
+Realizamos el test de Levene para comprobar la homocedasticidad
+
+```{r}
+leveneTest(total_protein ~ surgical_lesion, data)
+```
+
+## Aplicación de pruebas estadísticas
+
+### Estudio de correlación
+
+Cargamos la librería "dummies" para convertir en numéricas las variables categóricas
+
+```{r message = FALSE, warning = FALSE}
+if (!require("dummies")) install.packages("dummies")
+library(dummies)
+```
+
+Extendemos la variable "abdominal_distension"
+
+```{r}
+data <- dummy.data.frame(data, names = "abdominal_distension", 
+                         dummy.classes="ALL", sep = "_")
+```
+
+Asumimos que los caballos a los que se les practica la eutanasias mueren.
+
+```{r}
+levels(data$outcome) <- c(0, 1, 1)
+data$outcome <- as.numeric(data$outcome) - 1
+```
+
+Seleccionamos únicamente las variables numéricas
+
+```{r}
+nums <- unlist(lapply(data, is.numeric))
+data_nums <- data[ , nums]
+```
+
+Cargamos las librerías "corrplot" y "RColorBrewer" para representar la correlación entre las variables continuas
+
+```{r message = FALSE, warning = FALSE}
+if (!require("corrplot")) install.packages("corrplot")
+library(corrplot)
+if (!require("RColorBrewer")) install.packages("RColorBrewer")
+library(RColorBrewer)
+```
+
+Representamos la correlación entre las diferentes variables continuas, haciendo especial hincapié en los resultados para la variable "outcome"
+
+```{r}
+corrplot(cor(data_nums), type = "upper", order = "hclust", 
+         col = brewer.pal(n = 8, name = "RdYlBu"), diag = F)
+```
+
+### Prueba de contraste de hipótesis
+
+Creamos dos subconjuntos de datos de "total_protein" en función de si fueron operados o no
+
+```{r}
+data_oper <- data[data$surgery == "yes", ]$total_protein 
+data_noper <- data[data$surgery == "no", ]$total_protein
+```
+
+Realizamos un contraste de hipótesis con hipótesis nula que las medias de los dos subconjuntos sn iguales. No se puede rechazar
+
+```{r}
+t.test(data_noper, data_oper)
+```
+
+### Modelo de regresión logística
+
+Creamos dos conjuntos a partir de los datos originales, uno para estimar el modelo y otro para testearlo
+
+```{r}
+train_ind <- sample(seq_len(nrow(data)), size = 0.8*dim(data)[1])
+train <- data[train_ind, ]
+test <- data[-train_ind, ]
+```
+
+Estimamos el modelo de regresión logística y representamos sus características más reseñables
+
+```{r}
+out_model <- glm(outcome ~ pulse + packed_cell_volume + num_lesion + 
+                   abdominal_distension_moderate, 
+                 data = train, family = "binomial")
+summary(out_model)
+```
+
+Cargamos la librería "caret" para calcular la matriz de confusión de los resultados
+
+```{r message = FALSE, warning = FALSE}
+if (!require("caret")) install.packages("caret")
+library(caret)
+```
+
+Calculamos la matriz de confusión sobre los datos de test
+
+```{r}
+test_pred <- predict.glm(out_model, test, type="response")
+confusionMatrix(factor(round(test_pred)), factor(test$outcome))
+```
+
+Cargamos la librería "pROC" para dibjuar la curva ROC del modelo estimado
+
+```{r message = FALSE, warning = FALSE}
+if (!require("pROC")) install.packages("pROC")
+library(pROC)
+```
+
+Representamos la curva ROC del modelo estimado
+
+```{r}
+curva_roc <- roc(outcome ~ predict.glm(out_model, data, type = "response"), data)
+plot(curva_roc)
+```
+
+\newpage
+******
+
+# Conclusiones
+
 
